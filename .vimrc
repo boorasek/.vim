@@ -98,6 +98,7 @@ nnoremap <TAB> :b <C-Z>
 
 "best color scheme
 "colorscheme molokai
+"
 
 "show trailing/beginning white chars
 set list
