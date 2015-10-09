@@ -1,54 +1,153 @@
-" An example for a vimrc file.
-"
-" Maintainer: Przemek Borowski <boorasek@gmail.com>
-" Last change: 2011 Oct 24
-
-" When started as "evim", evim.vim will already have done these settings.
-if v:progname =~? "evim"
-  finish
-endif
 
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
-" allow backspacing over everything in insert mode
-set backspace=indent,eol,start
-set guioptions=aegirLt
-if has("vms")
-  set nobackup " do not keep a backup file, use versions instead
-else
-  set backup " keep a backup file
+" support for 256 colors in terminal
+if $COLORTERM == 'gnome-terminal'
+    set t_Co=256
 endif
-set history=50 " keep 50 lines of command line history
-set ruler           " show the cursor position all the time
-set showcmd       		" display incomplete commands
-set incsearch       		" do incremental searching
-set tabstop=4    		" tells how many spaces are equal to tab
-set shiftwidth=4
-set expandtab
-set number
+
+set backspace=indent,eol,start " allow backspacing over everything in insert mode
+
+
+" set directories to store *~ and *swp files
+set backupdir=~/.backup,/tmp
+set directory=~/.backup,/tmp
+
+set history=50   " keep 50 lines of command line history
+set ruler        " show the cursor position all the time
+set showcmd      " display incomplete commands
+set incsearch    " do incremental searching
+set tabstop=4    " tells how many spaces are equal to tab
+set shiftwidth=4 " tells how many spaces are used when changing indent with <<, >>
+set expandtab    " when expandtab is set, hitting Tab in insert mode will produce the appropriate number of spaces.
+set number       " line numbers
+
+set mouse=a      " enable mouse 
+
+" folding options
 set foldmethod=syntax
 
+" show trailing/beginning white chars
+set list
+set listchars=tab:\|-,trail:.,extends:>,precedes:.
 
-" In many terminal emulators the mouse works just fine, thus enable it.
-set mouse=a
-
-" Switch syntax highlighting on, when the terminal has colors
-" Also switch on highlighting the last used search pattern.
-if &t_Co > 2 || has("gui_running")
-  syntax on
-  set hlsearch
+" when terminal has colors
+if &t_Co > 2
+    syntax on    " syntax highlighting
+    set hlsearch " hihglighting last used search pattern
 endif
+
+" =============== plugin support ==============
+
+if has('vim_starting')
+    set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
+
+call neobundle#begin(expand('~/.vim/bundle/'))
+
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+" plugin list 
+NeoBundle 'tomasr/molokai'
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'markabe/bufexplorer'
+NeoBundle 'scrooloose/syntastic'
+NeoBundle 'AndrewRadev/linediff.vim'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'rhysd/vim-clang-format'
+NeoBundle 'majutsushi/tagbar'
+NeoBundle 'nelson/cscope_maps'
+NeoBundle 'bling/vim-airline'
+NeoBundle 'nosami/Omnisharp'
+
+NeoBundle 'Valloric/YouCompleteMe', { 'build' : { 'linux' : './install.sh --clang-completer --system-libclang --omnisharp-completer', } }
+
+call neobundle#end()
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+NeoBundleCheck
+
+" =========== end of plugin support ============
+
+filetype plugin indent on
+syntax enable
+
+colorscheme molokai " best color scheme
+
+" NERD Tree
+map <F5> :NERDTreeToggle<cr>
+let g:NERDTreeWinSize = 40
+
+" Tagbar
+nmap <F6> :TagbarToggle<cr>
+
+" clang-format
+" style_options: http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+let g:clang_format#command = "clang-format-3.6"
+let g:clang_format#code_style = "google"
+let g:clang_format#style_options = {
+  \ "AccessModifierOffset" : -4,
+  \ "AlwaysBreakTemplateDeclarations" : "true",
+  \ "Standard" : "C++11"}
+
+" Fugitive
+set diffopt=filler,vertical
+nmap <silent> <leader>gc :Gcommit<CR>
+nmap <silent> <leader>gd :Gdiff<CR>
+nmap <silent> <leader>gp :Git push<CR>
+nmap <silent> <leader>gs :Gstatus<CR>
+
+"alt map - moving between windows
+map <C-left> <C-W>h<C-W>_
+map <C-right> <C-W>l<C-W>_
+map <C-up> <C-W>k<C-W>_
+map <C-down> <C-W>j<C-W>_
+
+" line diff
+noremap \ldt :Linediff<CR>
+noremap \ldo :LinediffReset<CR>
+
+"highlight current line
+set cursorline
+"
+"highlight long lines - more than 120 chars
+highlight OverLength ctermbg=red ctermfg=white guibg=#592929
+match OverLength /\%121v.\+/
+"
+"Removes trailing spaces
+function TrimWhiteSpace()
+    %s/\s*$//
+    ''
+:endfunction
+
+map <F2> :call TrimWhiteSpace()<CR>
+
+" airline
+let g:airline#extensions#tabline#enabled = 1
+"
+"load ctags 
+function LoadTags()
+    set tags+=~/.tags/tags
+endfunction
+
+map <F9> :call LoadTags() <CR>
+
+" youcompleteme
+let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+
+"========================VERIFIED END===================================================================================
+"if has("vms")
+"  set nobackup " do not keep a backup file, use versions instead
+"else
+"  set backup " keep a backup file
+"endif
 
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
 
-  " Enable file type detection.
-  " Use the default filetype settings, so that mail gets 'tw' set to 72,
-  " 'cindent' is on in C files, etc.
-  " Also load indent files, to automatically do language-dependent indenting.
-  filetype plugin indent on
 
   " Put these in an autocmd group, so that we can delete them easily.
   augroup vimrcEx
@@ -96,90 +195,26 @@ set wildchar=<TAB> wildmenu wildmode=full
 set wildcharm=<C-Z>
 nnoremap <TAB> :b <C-Z>
 
-"best color scheme
-colorscheme molokai
-
-"show trailing/beginning white chars
-set list
-set listchars=tab:\|-,trail:.,extends:>,precedes:.
-
-"highlight current line
-set cursorline
-
-"set wmh=0 "set minimal window height
-map <F5> :NERDTreeToggle<cr>
-map <F8> :bd<cr>
-
-"ctags
-let Tlist_Use_Right_Window = 1
-let Tlist_Ctags_Cmd = "/usr/bin/ctags"
-let Tlist_WinWidth = 50
-map <F4> :TlistToggle<cr>
-map <F7> :tselect<cr>
-
-"alt map - moving between windows
-map <C-left> <C-W>h<C-W>_
-map <C-right> <C-W>l<C-W>_
-map <C-up> <C-W>k<C-W>_
-map <C-down> <C-W>j<C-W>_
-
-"load ctags - cplane only
-function LoadTags()
-"    set tags+=lteDo/Tags/tags
-"    set tags+=lteDo/Tags/tags_ut
-    set tags+=lteDo/Tags/tags_ttcn3
-endfunction
-
-map <F9> :call LoadTags() <CR>
-
-"highlight long lines - more than 120 chars
-highlight OverLength ctermbg=red ctermfg=white guibg=#592929
-match OverLength /\%121v.\+/
-
-"Removes trailing spaces
-function TrimWhiteSpace()
-    %s/\s*$//
-    ''
-:endfunction
 
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
-    autocmd FileType c,cpp,h,hpp autocmd FileWritePre * :silent call TrimWhiteSpace()
-    autocmd FileType c,cpp,h,hpp autocmd FileAppendPre * :silent call TrimWhiteSpace()
-    autocmd FileType c,cpp,h,hpp autocmd FilterWritePre * :silent call TrimWhiteSpace()
-    autocmd FileType c,cpp,h,hpp autocmd BufWritePre * :silent call TrimWhiteSpace()
+"    autocmd FileType c,cpp,h,hpp autocmd FileWritePre * :silent call TrimWhiteSpace()
+"    autocmd FileType c,cpp,h,hpp autocmd FileAppendPre * :silent call TrimWhiteSpace()
+"    autocmd FileType c,cpp,h,hpp autocmd FilterWritePre * :silent call TrimWhiteSpace()
+"    autocmd FileType c,cpp,h,hpp autocmd BufWritePre * :silent call TrimWhiteSpace()
 endif " has("autocmd")
 
-map <F2> :call TrimWhiteSpace()<CR>
-map! <F2> :call TrimWhiteSpace()<CR>
 nnoremap <leader>a :Ack <cword> 
-let g:NERDTreeWinSize = 40
-"let g:molokai_original = 0
+"
 "set term=xterm-256color
 
 
-filetype plugin on
-set ofu=syntaxcomplete#Complete
-
-" OmniCppComplete
-let OmniCpp_NamespaceSearch = 1
-let OmniCpp_GlobalScopeSearch = 1
-let OmniCpp_ShowAccess = 1
-let OmniCpp_ShowPrototypeInAbbr = 1 " show function parameters
-let OmniCpp_MayCompleteDot = 1 " autocomplete after .
-let OmniCpp_MayCompleteArrow = 1 " autocomplete after ->
-let OmniCpp_MayCompleteScope = 1 " autocomplete after ::
-let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
-" automatically open and close the popup menu / preview window
-au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
-set completeopt=menuone,menu,longest
-",preview
 
 
 map <F10> :call AsyncGenCtags() <CR>
 
 function! AsyncGenCtags()
-    let ctags_cmd = "/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q C_Application/*"
+    let ctags_cmd = "/usr/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q -f .tags ~/b/ekrzmac/client/Native/*"
     let ctags_func = asynchandler#quickfix("cgetfile", "quickfix")
     call asynccommand#run(ctags_cmd, ctags_func)
     :redraw!
