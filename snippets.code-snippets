@@ -1,0 +1,76 @@
+{
+  "brs/import": {
+    "prefix": "ii",
+    "body": [
+      "import \"pkg:/components/utils/$1.bs\""
+    ],
+    "description": "Utils import",
+  },
+  "brs/component": {
+    "prefix": "ccmp",
+    "body": [
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>",
+      "<component name=\"$1\" extends=\"$2\">",
+      "  <interface>",
+      "    $3",
+      "  </interface>",
+      "  <children>",
+      "    $4",
+      "  </children>",
+      "</component>"
+    ],
+    "description": "Component template",
+  },
+  "brs/field": {
+    "prefix": "ffield",
+    "body": [
+      "    <field id=\"$1\" type=\"$2\" />"
+    ],
+    "description": "Field template"
+  },
+  "brs/dd": {
+    "prefix": "dd",
+    "body": [
+      "@inject",
+      "@observe($2)",
+      "m.$1 = {}"
+    ],
+    "description": "Inject template"
+  },
+  "brs/di": {
+    "prefix": "di",
+    "body": [
+      "@inject",
+      "@observe($2)",
+      "m.${TM_SELECTED_TEXT} = {}"
+    ],
+    "description": "Inject template"
+  },
+  "brs/fn": {
+    "prefix": "fn",
+    "body": [
+      "function $1($2)",
+      "  return $3",
+      "end function"
+    ],
+    "description": "Function template"
+  },
+  "brs/sb": {
+    "prefix": "sb",
+    "body": [
+      "sub $1($2)",
+      "end sub"
+    ],
+    "description": "Sub template"
+  },
+  "brs/if": {
+    "prefix": "if",
+    "body": [
+      "if $1",
+      "  $2",
+      "end if"
+    ],
+    "description": "If template"
+  }
+}
+
